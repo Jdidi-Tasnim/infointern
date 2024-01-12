@@ -3,6 +3,10 @@ import speech_recognition as sr
 import datetime
 import os
 import requests
+import spacy
+
+# Load the SpaCy English model
+nlp = spacy.load("en_core_web_sm")
 
 r = sr.Recognizer()
 engine = pyttsx3.init()
@@ -25,6 +29,11 @@ def listen():
     except sr.RequestError:
         print("Sorry, my speech recognition is down.")
         return ""
+
+def perform_nlu(query):
+    doc = nlp(query)
+    entities = [(ent.text, ent.label_) for ent in doc.ents]
+    return entities
 
 def get_time():
     now = datetime.datetime.now()
@@ -62,6 +71,8 @@ def main():
     speak("Hi! How can I help you?")
     while True:
         command = listen()
+        entities = perform_nlu(command)
+
         if "hello" in command:
             speak("Hi")
         elif "how are you" in command:
@@ -73,10 +84,13 @@ def main():
         elif "note" in command:
             create_note()
         elif "weather" in command:
-            speak("Sure, which city's weather would you like to know?")
-            city = listen()
-            print(city)
-            get_weather(city)
+            if entities and entities[0][1] == 'GPE':
+                city = entities[0][0]
+                get_weather(city)
+            else:
+                speak("Sure, which city's weather would you like to know?")
+                city = listen()
+                get_weather(city)
         elif "goodbye" in command or 'exit' in command:
             speak("Goodbye. Thanks for giving me your time.")
             exit()
@@ -87,4 +101,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
