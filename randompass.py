@@ -22,11 +22,8 @@ pass_complexity.set(1)  # Default to easy
 # StringVar to store excluded characters
 exclude_chars = StringVar()
 
-# StringVar to store included characters
-include_chars = StringVar()
-
 # List of all possible characters
-all_combi = [string.punctuation, string.ascii_uppercase, string.digits, string.ascii_lowercase]
+all_combi = [string.ascii_uppercase, string.digits, string.ascii_lowercase]
 
 # -------------------  Random Password generator function
 def randPassGen():
@@ -38,18 +35,13 @@ def randPassGen():
     elif complexity == 2:  # Medium
         char_types = all_combi
     else:  # Difficult
-        char_types = all_combi[:3]  # Use only letters and digits for difficult
+        char_types = all_combi[:2]  # Use only letters and digits for difficult
 
     exclude_set = set(exclude_chars.get())
-    include_set = set(include_chars.get())
 
     for _ in range(pass_len.get()):
         char_type = random.choice(char_types)
-        
-        # If included characters are specified, choose from them
-        if include_set:
-            char_type = include_set.intersection(char_type)
-        
+
         char = random.choice(char_type)
 
         # Check if the character is in the exclusion set
@@ -73,10 +65,8 @@ complexity_scale = Scale(root, from_=1, to=3, orient=HORIZONTAL, variable=pass_c
                          label="1: Easy, 2: Medium, 3: Difficult").pack()
 
 exclude_label = Label(root, text='Exclude Characters', font='arial 12 bold').pack(pady=10)
-exclude_entry = Entry(root, textvariable=exclude_chars, font='arial 16').pack()
-
-include_label = Label(root, text='Include Characters', font='arial 12 bold').pack(pady=10)
-include_entry = Entry(root, textvariable=include_chars, font='arial 16').pack()
+exclude_entry = Entry(root, textvariable=exclude_chars, font='arial 16')
+exclude_entry.pack()
 
 # Generate password button
 Button(root, command=randPassGen, text="Generate Password", font="Arial 10", bg='lightblue', fg='black',
